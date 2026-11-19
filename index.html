@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mi ruta de lectura</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Una ruta vertical: cada saga es una "parada" con sus libros como portadas en fila. */
+:root{
+  --bg:#0f1622; --bg2:#151f2e; --card:#1b2638; --ink:#eef2f7; --muted:#9aa8ba; --line:#2b3a50;
+  --accent:#74c8a9; --accent-ink:#0f1622; --gold:#e8b85c; --gold-soft:#3b301b;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(1200px 600px at 80% -10%,#1d2c45 0%,transparent 60%),var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;min-height:100vh}
+.wrap{max-width:860px;margin:0 auto;padding-block:max(32px,env(safe-area-inset-top,0px)) 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+.eyebrow{font-size:.74rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end}
+.hero h1{font-size:clamp(2.2rem,6vw,3.6rem);font-weight:800;letter-spacing:-.03em;line-height:1}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p{color:var(--muted);margin:10px 0 0;max-width:46ch}
+.ring{width:118px;height:118px;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring .num{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-family:var(--display);font-weight:800;font-size:1.6rem;line-height:1}
+.ring .num small{display:block;font-family:var(--body);font-weight:400;font-size:.7rem;color:var(--muted);margin-top:4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{background:var(--bg2);border:1px solid var(--line);border-radius:99px;padding:4px 12px;font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.chip b{color:var(--ink)}
+@media (max-width:560px){.hero{grid-template-columns:1fr}.ring{width:96px;height:96px}}
+
+/* Secciones y paradas */
+.section{display:flex;flex-direction:column;gap:16px}
+.section-head{display:flex;flex-direction:column;gap:4px}
+.section-head h2{font-size:1.5rem;font-weight:800;letter-spacing:-.01em}
+.section-head p{margin:0;color:var(--muted)}
+.route{display:flex;flex-direction:column;gap:14px;position:relative}
+.stop{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}
+.stop.now{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 30%,transparent)}
+.step{width:40px;height:40px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--display);font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.stop-body{min-width:0;display:flex;flex-direction:column;gap:12px}
+.stop-title{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.stop-title h3{font-size:1.15rem;font-weight:700}
+.stop-title span{color:var(--muted);font-size:.9rem}
+.books{display:flex;gap:14px;flex-wrap:wrap}
+.book{width:118px;display:flex;flex-direction:column;gap:6px;cursor:pointer;border:0;background:none;padding:0;color:inherit;text-align:left;font:inherit}
+.cover{width:118px;aspect-ratio:2/3;max-width:100%;border-radius:6px 10px 10px 6px;overflow:hidden;position:relative;background:linear-gradient(160deg,var(--c1,#3b5577),var(--c2,#1c2a40));box-shadow:0 10px 24px rgba(0,0,0,.45),inset 4px 0 0 rgba(255,255,255,.08);transition:transform .25s,filter .35s}
+.book:hover .cover{transform:translateY(-4px) rotate(-1deg)}
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s}
+.cover img.ok{opacity:1}
+.cover .ph{position:absolute;inset:0;padding:12px 10px;display:flex;flex-direction:column;justify-content:space-between;font-family:var(--display);font-weight:700;font-size:.85rem;line-height:1.15;color:#fff}
+.cover .ph small{font-family:var(--body);font-weight:400;font-size:.68rem;opacity:.8}
+.stamp{position:absolute;inset:auto 8px 10px auto;background:var(--accent);color:var(--accent-ink);font-family:var(--display);font-weight:800;font-size:.7rem;letter-spacing:.08em;padding:3px 8px;border-radius:6px;transform:rotate(-6deg) scale(.6);opacity:0;transition:transform .3s cubic-bezier(.2,1.6,.4,1),opacity .2s}
+.book.done .cover{filter:grayscale(.85) brightness(.6)}
+.book.done .stamp{opacity:1;transform:rotate(-6deg) scale(1)}
+.book.done .btitle{text-decoration:line-through;text-decoration-thickness:2px;color:var(--muted)}
+.btitle{font-weight:700;font-size:.88rem;line-height:1.25}
+.bmeta{font-size:.75rem;color:var(--muted)}
+.tag{align-self:flex-start;font-size:.64rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:99px}
+.tag.close{background:var(--gold-soft);color:var(--gold)}
+.tag.started{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
+.book:focus-visible{outline:3px solid var(--gold);outline-offset:4px;border-radius:8px}
+
+/* Reglas y lista para después */
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.rule{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px}
+.rule b{font-family:var(--display);display:block;margin-bottom:4px}
+.rule p{margin:0;color:var(--muted);font-size:.92rem}
+.later{background:var(--bg2);border:1px dashed var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.later ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.later li{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--card);border-radius:10px;padding:8px 12px}
+.later li span{min-width:0;overflow-wrap:anywhere}
+.later form{display:flex;gap:8px}
+.later input{flex:1;min-width:0;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+.btn{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.x{font:inherit;border:0;background:none;color:var(--muted);font-size:1.2rem;cursor:pointer}
+.btn:focus-visible,.x:focus-visible,.later input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+footer{color:var(--muted);font-size:.78rem;text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div>
+      <span class="eyebrow">Plan para cerrar trilogías</span>
+      <h1>Mi ruta de <em>lectura</em></h1>
+      <p>Un libro a la vez, en orden. Toca una portada cuando lo termines.</p>
+      <div class="chips">
+        <span class="chip"><b id="count">0</b> de <b id="total">0</b> libros</span>
+        <span class="chip"><b id="closed">0</b> de <b id="closedTotal">0</b> trilogías cerradas</span>
+      </div>
+    </div>
+    <div class="ring" aria-hidden="true">
+      <svg viewBox="0 0 120 120" width="100%" height="100%">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--line)" stroke-width="10"/>
+        <circle id="arc" cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition:stroke-dashoffset .6s"/>
+      </svg>
+      <div class="num"><span><span id="pct">0</span>%<small>completado</small></span></div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="section-head"><span class="eyebrow">Ahora</span><h2>Terminar primero</h2></div>
+    <div class="route" id="now"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><span class="eyebrow">La ruta</span><h2>En este orden</h2><p>Cada parada es una saga. Termina la parada antes de pasar a la siguiente.</p></div>
+    <div class="route" id="route"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><span class="eyebrow">Respiros</span><h2>Entre bloques largos</h2><p>Cortos o autoconclusivos, para descansar sin abrir otra saga.</p></div>
+    <div class="route" id="breaks"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><span class="eyebrow">Reglas</span><h2>Para no desviarme</h2></div>
+    <div class="rules">
+      <div class="rule"><b>Máximo dos a la vez</b><p>Uno físico y uno digital, o uno largo y uno ligero.</p></div>
+      <div class="rule"><b>Nada nuevo hasta terminar</b><p>Lo que me tiente va a la lista de abajo, no a la mesa de noche.</p></div>
+      <div class="rule"><b>La continuación primero</b><p>Al terminar un libro, sigo con el siguiente de su saga.</p></div>
+    </div>
+  </section>
+
+  <section class="later">
+    <span class="eyebrow">Para después de la ruta</span>
+    <p style="margin:0;color:var(--muted)">Antes de empezar una saga de aquí, revisar que esté completa.</p>
+    <ul id="later"></ul>
+    <form id="laterForm"><input id="laterInput" type="text" placeholder="Algo que me tentó…" aria-label="Libro para después" maxlength="80"><button class="btn" type="submit">Anotar</button></form>
+  </section>
+
+  <footer>Portadas: Open Library. Las marcas se guardan en este navegador.</footer>
+</div>
+
+<script>
+// Cada libro: id, título, autor, título original (para buscar portada), colores del respaldo.
+const B=(id,t,a,en,c1,c2,extra={})=>({id,t,a,en,c1,c2,...extra});
+const NOW=[
+  {saga:"Lecturas en curso",books:[
+    B("alchemised","Alchemised","SenLinYu","Alchemised","#4b2b3a","#1e1420",{tag:"started",meta:"Vas por la pág. 600"}),
+    B("republica","La república del dragón","R. F. Kuang","The Dragon Republic","#7a2a1e","#2b0f0c",{tag:"started",meta:"La guerra de la amapola · 2"})
+  ]}
+];
+const ROUTE=[
+  {saga:"Escolomancia",note:"Te falta el último",books:[B("enclaves","Los enclaves dorados","Naomi Novik","The Golden Enclaves","#8a6a1f","#2a1f08",{tag:"close",tri:true})]},
+  {saga:"Red Rising",note:"Ya empezaste el segundo",books:[
+    B("hijodorado","Hijo dorado","Pierce Brown","Golden Son","#9b7a1e","#2e2208",{tag:"started"}),
+    B("estrella","Estrella de la mañana","Pierce Brown","Morning Star","#3b5f8f","#101c2e",{tag:"close",tri:true})]},
+  {saga:"Nuncanoche",note:"Te falta el último",books:[B("albaoscura","Albaoscura","Jay Kristoff","Darkdawn","#3a2f5c","#120d22",{tag:"close",tri:true})]},
+  {saga:"La guerra de la amapola",note:"Después del que estás leyendo",books:[B("diosllamas","El dios en llamas","R. F. Kuang","The Burning God","#a33a1e","#330f08",{tag:"close",tri:true})]},
+  {saga:"Trilogía del Vatídico",note:"Robin Hobb",books:[
+    B("asesinoreal","Asesino real","Robin Hobb","Royal Assassin","#2f5a4a","#0e1f19"),
+    B("busqueda","La búsqueda del asesino","Robin Hobb","Assassin's Quest","#24485a","#0b1820",{tag:"close",tri:true})]},
+  {saga:"El ángel de la noche",note:"Brent Weeks",books:[
+    B("alfilo","Al filo de las sombras","Brent Weeks","Shadow's Edge","#3a3a44","#111116"),
+    B("masalla","Más allá de las sombras","Brent Weeks","Beyond the Shadows","#5a2630","#1c0a0e",{tag:"close",tri:true})]},
+  {saga:"La jerarquía",note:"Ya empezado",books:[B("voluntad","La voluntad de muchos","James Islington","The Will of the Many","#7a5a2a","#24190a",{tag:"started"})]},
+  {saga:"Hermanos de sangre",note:"John Gwynne",books:[
+    B("hambre","El hambre de los dioses","John Gwynne","The Hunger of the Gods","#4a5a6a","#141b22"),
+    B("furia","La furia de los dioses","John Gwynne","The Fury of the Gods","#6a3a2a","#1e0f0a",{tag:"close",tri:true})]}
+];
+const BREAKS=[
+  {saga:"Cuando necesite un respiro",books:[
+    B("vals","El vals de la bruja","Belén Martínez","","#3d2a55","#140c20"),
+    B("rebelion","Rebelión en la granja","George Orwell","Animal Farm","#7a3a1a","#24100a"),
+    B("fahrenheit","Fahrenheit 451","Ray Bradbury","Fahrenheit 451","#b5531c","#3a1406")]}
+];
+const DEFAULT_LATER=["Hijos de sangre y hueso","Soul Land (novela ligera), solo para ratos muertos"];
+const TAG={close:"Cierra trilogía",started:"Empezado"};
+const KEY="ruta-lectura-v1";
+
+let state={done:[],later:DEFAULT_LATER.slice()};
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s&&Array.isArray(s.done)) state={done:s.done,later:Array.isArray(s.later)?s.later:[]}}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){} updateStats()};
+const $=id=>document.getElementById(id);
+
+// Portadas: busca en Open Library y guarda el resultado en caché local.
+const COVER_KEY="ruta-portadas-v1";
+let coverCache={}; try{coverCache=JSON.parse(localStorage.getItem(COVER_KEY)||"{}")}catch(e){}
+async function findCover(b){
+  if(b.id in coverCache) return coverCache[b.id];
+  const tries=[[b.t,b.a],[b.en,b.a]].filter(x=>x[0]);
+  for(const [title,author] of tries){
+    try{
+      const r=await fetch("https://openlibrary.org/search.json?limit=5&fields=cover_i&title="+encodeURIComponent(title)+"&author="+encodeURIComponent(author));
+      if(!r.ok) continue; const j=await r.json();
+      const hit=(j.docs||[]).find(d=>d.cover_i);
+      if(hit){coverCache[b.id]=hit.cover_i; try{localStorage.setItem(COVER_KEY,JSON.stringify(coverCache))}catch(e){} return hit.cover_i}
+    }catch(e){}
+  }
+  return null;
+}
+
+function bookEl(b){
+  const el=document.createElement("button"); el.type="button"; el.className="book"+(state.done.includes(b.id)?" done":"");
+  el.setAttribute("aria-pressed",state.done.includes(b.id)); el.setAttribute("aria-label",b.t+", "+b.a);
+  el.innerHTML=`<div class="cover" style="--c1:${b.c1};--c2:${b.c2}"><div class="ph"><span></span><small></small></div><img alt=""><span class="stamp">LEÍDO</span></div><span class="btitle"></span><span class="bmeta"></span>`;
+  el.querySelector(".ph span").textContent=b.t; el.querySelector(".ph small").textContent=b.a;
+  el.querySelector(".btitle").textContent=b.t; el.querySelector(".bmeta").textContent=b.meta||b.a;
+  if(b.tag){const t=document.createElement("span"); t.className="tag "+b.tag; t.textContent=TAG[b.tag]; el.append(t)}
+  const img=el.querySelector("img");
+  img.onload=()=>{if(img.naturalWidth>2) img.classList.add("ok")};
+  findCover(b).then(id=>{if(id) img.src="https://covers.openlibrary.org/b/id/"+id+"-M.jpg"});
+  el.addEventListener("click",()=>{const on=!state.done.includes(b.id); state.done=state.done.filter(x=>x!==b.id); if(on) state.done.push(b.id); el.classList.toggle("done",on); el.setAttribute("aria-pressed",on); save()});
+  return el;
+}
+function stopEl(s,n,isNow){
+  const d=document.createElement("article"); d.className="stop"+(isNow?" now":"");
+  d.innerHTML=`<div class="step"></div><div class="stop-body"><div class="stop-title"><h3></h3><span></span></div><div class="books"></div></div>`;
+  d.querySelector(".step").textContent=n; d.querySelector("h3").textContent=s.saga; d.querySelector(".stop-title span").textContent=s.note||"";
+  d.querySelector(".books").append(...s.books.map(bookEl)); return d;
+}
+const ALL=[...NOW,...ROUTE,...BREAKS].flatMap(s=>s.books);
+const TRI=ALL.filter(b=>b.tri);
+function updateStats(){
+  const d=ALL.filter(b=>state.done.includes(b.id)).length, pct=Math.round(d/ALL.length*100);
+  $("count").textContent=d; $("total").textContent=ALL.length; $("pct").textContent=pct;
+  $("closed").textContent=TRI.filter(b=>state.done.includes(b.id)).length; $("closedTotal").textContent=TRI.length;
+  $("arc").setAttribute("stroke-dashoffset",(326.7*(1-pct/100)).toFixed(1));
+  $("later").replaceChildren(...state.later.map((t,i)=>{const li=document.createElement("li"); const s=document.createElement("span"); s.textContent=t;
+    const x=document.createElement("button"); x.className="x"; x.type="button"; x.textContent="×"; x.setAttribute("aria-label","Quitar "+t);
+    x.onclick=()=>{state.later.splice(i,1); save()}; li.append(s,x); return li}));
+}
+$("now").append(...NOW.map(s=>stopEl(s,"▶",true)));
+$("route").append(...ROUTE.map((s,i)=>stopEl(s,i+1)));
+$("breaks").append(...BREAKS.map(s=>stopEl(s,"~")));
+$("laterForm").addEventListener("submit",e=>{e.preventDefault(); const v=$("laterInput").value.trim(); if(!v) return; state.later.push(v); $("laterInput").value=""; save()});
+updateStats();
+</script>
+</body>
+</html>
