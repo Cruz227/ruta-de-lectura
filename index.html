@@ -88,6 +88,7 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 .divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.85rem}
 .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
 .tag.later{background:color-mix(in srgb,#8fa6c8 20%,transparent);color:#a9bddb}
+.tag.rec{background:color-mix(in srgb,#c58ad8 20%,transparent);color:#d9a8e8}
 .tag.retry{background:color-mix(in srgb,#d58a8a 20%,transparent);color:#e3a3a3}
 
 /* Reglas y lista para después */
@@ -131,6 +132,11 @@ footer{color:var(--muted);font-size:.78rem;text-align:center}
   </header>
 
   <section class="section">
+    <div class="section-head"><span class="eyebrow">Este mes</span><h2>Ya terminados</h2></div>
+    <div class="round"><div class="books" id="finished"></div></div>
+  </section>
+
+  <section class="section">
     <div class="section-head"><span class="eyebrow">La ruta</span><h2>Por rondas</h2><p>En cada ronda lees un físico y un digital al mismo tiempo, uno denso y uno más ágil. Cuando terminas los dos, pasas a la siguiente.</p></div>
     <div class="route" id="route"></div>
   </section>
@@ -166,22 +172,23 @@ const ROUNDS=[
   {n:1,title:"Cierra la Amapola y Escolomancia",why:"El dios en llamas es largo y duro; Los enclaves dorados se lee rápido y te da la primera saga cerrada.",
    lanes:[[FIS,[B("diosllamas","El dios en llamas","R. F. Kuang","The Burning God","#a33a1e","#330f08",{tag:"close",tri:true,meta:"La guerra de la amapola · 3"})]],
           [DIG,[B("enclaves","Los enclaves dorados","Naomi Novik","The Golden Enclaves","#8a6a1f","#2a1f08",{tag:"close",tri:true,meta:"Escolomancia · 3"})]]]},
-  {n:2,title:"Respiro en papel, intensidad en pantalla",why:"Una relectura de thriller para descansar de la fantasía mientras retomas Red Rising.",
-   lanes:[[FIS,[B("lunafria","Luna fría","Jeffery Deaver","The Cold Moon","#22344d","#0a1220",{meta:"Relectura · Lincoln Rhyme"})]],
+  {n:2,title:"El recomendado y Red Rising",why:"El vals de la bruja es autoconclusivo y ágil: buen contrapeso para retomar Red Rising.",
+   lanes:[[FIS,[B("vals","El vals de la bruja","Belén Martínez","","#3d2a55","#140c20",{tag:"rec",meta:"Autoconclusivo"})]],
           [DIG,[B("hijodorado","Hijo dorado","Pierce Brown","Golden Son","#9b7a1e","#2e2208",{tag:"started",meta:"Red Rising · 2"})]]]},
-  {n:3,title:"Segunda oportunidad y cierre de Red Rising",why:"Seis de cuervos arranca lento; aguanta hasta la pág. 100, cuando se arma el golpe.",
-   lanes:[[FIS,[B("seiscuervos","Seis de cuervos","Leigh Bardugo","Six of Crows","#2a2a2a","#0c0c0c",{tag:"retry",meta:"Bilogía · 1"})]],
+  {n:3,title:"Relectura y cierre de Red Rising",why:"Un thriller conocido en papel mientras terminas una saga intensa en pantalla.",
+   lanes:[[FIS,[B("lunafria","Luna fría","Jeffery Deaver","The Cold Moon","#22344d","#0a1220",{meta:"Relectura · Lincoln Rhyme"})]],
           [DIG,[B("estrella","Estrella de la mañana","Pierce Brown","Morning Star","#3b5f8f","#101c2e",{tag:"close",tri:true,meta:"Red Rising · 3"})]]]},
-  {n:4,title:"Último físico",why:"Si Seis de cuervos te enganchó, consigue Reino de ladrones en digital. Si no, salta directo a Albaoscura.",
+  {n:4,title:"Segunda oportunidad y cierre de Nuncanoche",why:"Seis de cuervos arranca lento; aguanta hasta la pág. 100, cuando se arma el golpe.",
+   lanes:[[FIS,[B("seiscuervos","Seis de cuervos","Leigh Bardugo","Six of Crows","#2a2a2a","#0c0c0c",{tag:"retry",meta:"Bilogía · 1"})]],
+          [DIG,[B("albaoscura","Albaoscura","Jay Kristoff","Darkdawn","#3a2f5c","#120d22",{tag:"close",tri:true,meta:"Nuncanoche · 3"})]]]},
+  {n:5,title:"Último físico",why:"Si Seis de cuervos te enganchó, sigue con Reino de ladrones en digital. Si no, sáltalo.",
    lanes:[[FIS,[B("zorro","La sombra del zorro","Julie Kagawa","Shadow of the Fox","#7a1e2a","#24080c",{tag:"retry",meta:"Tercer intento · 80 páginas"})]],
           [DIG,[B("reino","Reino de ladrones","Leigh Bardugo","Crooked Kingdom","#5a4a2a","#1a1408",{tag:"close",tri:true,later:true,meta:"Seis de cuervos · 2"})]]]},
-  {divider:"Desde aquí todo es digital: un libro denso y uno corto a la vez"},
-  {n:5,title:"Cierra Nuncanoche",lanes:[[DENSO,[B("albaoscura","Albaoscura","Jay Kristoff","Darkdawn","#3a2f5c","#120d22",{tag:"close",tri:true,meta:"Nuncanoche · 3"})]],
+  {divider:"Desde aquí todo es digital"},
+  {n:6,title:"Vuelve Robin Hobb",why:"Un denso con un clásico corto al lado.",
+   lanes:[[DENSO,[B("asesinoreal","Asesino real","Robin Hobb","Royal Assassin","#2f5a4a","#0e1f19",{meta:"Vatídico · 2"})]],
           [CORTO,[B("rebelion","Rebelión en la granja","George Orwell","Animal Farm","#7a3a1a","#24100a",{meta:"Clásico"})]]]},
-  {n:6,title:"Vuelve Robin Hobb",lanes:[[DENSO,[B("asesinoreal","Asesino real","Robin Hobb","Royal Assassin","#2f5a4a","#0e1f19",{meta:"Vatídico · 2"})]],
-          [CORTO,[B("fahrenheit","Fahrenheit 451","Ray Bradbury","Fahrenheit 451","#b5531c","#3a1406",{meta:"Clásico"})]]]},
-  {n:7,title:"Cierra el Vatídico",lanes:[[DENSO,[B("busqueda","La búsqueda del asesino","Robin Hobb","Assassin's Quest","#24485a","#0b1820",{tag:"close",tri:true,meta:"Vatídico · 3"})]],
-          [CORTO,[B("vals","El vals de la bruja","Belén Martínez","","#3d2a55","#140c20",{meta:"Autoconclusivo"})]]]},
+  {n:7,title:"Cierra el Vatídico",lanes:[[DIG,[B("busqueda","La búsqueda del asesino","Robin Hobb","Assassin's Quest","#24485a","#0b1820",{tag:"close",tri:true,meta:"Vatídico · 3"})]]]},
   {n:8,title:"El ángel de la noche, seguidos",why:"Uno tras otro: son rápidos y se leen como una sola historia.",
    lanes:[[DIG,[B("alfilo","Al filo de las sombras","Brent Weeks","Shadow's Edge","#3a3a44","#111116",{meta:"Libro 2"}),
                B("masalla","Más allá de las sombras","Brent Weeks","Beyond the Shadows","#5a2630","#1c0a0e",{tag:"close",tri:true,meta:"Libro 3"})]]]},
@@ -190,8 +197,13 @@ const ROUNDS=[
    lanes:[[DIG,[B("hambre","El hambre de los dioses","John Gwynne","The Hunger of the Gods","#4a5a6a","#141b22",{meta:"Libro 2"}),
                B("furia","La furia de los dioses","John Gwynne","The Fury of the Gods","#6a3a2a","#1e0f0a",{tag:"close",tri:true,meta:"Libro 3"})]]]}
 ];
+const FINISHED=[
+  B("narnia","Las crónicas de Narnia","C. S. Lewis","The Last Battle","#2f5a3a","#0e1f12",{meta:"Saga completa"}),
+  B("cosecha","Amanecer en la cosecha","Suzanne Collins","Sunrise on the Reaping","#8a5a1a","#2a1806",{meta:"Los juegos del hambre"}),
+  B("fahrenheit","Fahrenheit 451","Ray Bradbury","Fahrenheit 451","#b5531c","#3a1406",{meta:"Clásico"})
+];
 const DEFAULT_LATER=["Hijos de sangre y hueso","Soul Land (novela ligera), solo para ratos muertos"];
-const TAG={close:"Cierra saga",started:"Empezado",retry:"Nuevo intento"};
+const TAG={close:"Cierra saga",started:"Empezado",retry:"Nuevo intento",rec:"Recomendado"};
 const KEY="ruta-lectura-v1";
 
 let state={done:[],later:DEFAULT_LATER.slice()};
@@ -258,6 +270,7 @@ function updateStats(){
     x.onclick=()=>{state.later.splice(i,1); save()}; li.append(s,x); return li}));
 }
 $("route").append(...ROUNDS.map(roundEl));
+$("finished").append(...FINISHED.map(b=>{const el=bookEl(b); el.classList.add("done"); el.disabled=true; el.style.cursor="default"; el.setAttribute("aria-pressed","true"); return el}));
 $("laterForm").addEventListener("submit",e=>{e.preventDefault(); const v=$("laterInput").value.trim(); if(!v) return; state.later.push(v); $("laterInput").value=""; save()});
 updateStats();
 </script>
