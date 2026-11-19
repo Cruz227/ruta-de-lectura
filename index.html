@@ -68,6 +68,28 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 .tag.started{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
 .book:focus-visible{outline:3px solid var(--gold);outline-offset:4px;border-radius:8px}
 
+
+/* Rondas: cada ronda junta un carril físico y uno digital */
+.round{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.round.now{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 30%,transparent)}
+.round-head{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+.round-head h3{font-size:1.15rem;font-weight:700}
+.round-head p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.lanes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.lanes.single{grid-template-columns:1fr}
+@media (max-width:600px){.lanes{grid-template-columns:1fr}}
+.lane{background:var(--bg2);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.lane-label{display:flex;align-items:center;gap:8px;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;color:var(--muted)}
+.lane-label i{width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.lane-label.fis i{background:var(--gold)}
+.lane-label.short i{background:#8fa6c8}
+.lane-label small{text-transform:none;letter-spacing:0;font-weight:400}
+.lane-empty{color:var(--muted);font-size:.88rem;margin:0}
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.85rem}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.tag.later{background:color-mix(in srgb,#8fa6c8 20%,transparent);color:#a9bddb}
+.tag.retry{background:color-mix(in srgb,#d58a8a 20%,transparent);color:#e3a3a3}
+
 /* Reglas y lista para después */
 .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .rule{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px}
@@ -91,12 +113,12 @@ footer{color:var(--muted);font-size:.78rem;text-align:center}
 
   <header class="hero">
     <div>
-      <span class="eyebrow">Plan para cerrar trilogías</span>
+      <span class="eyebrow">Plan para cerrar sagas</span>
       <h1>Mi ruta de <em>lectura</em></h1>
-      <p>Un libro a la vez, en orden. Toca una portada cuando lo termines.</p>
+      <p>Un libro físico y uno digital a la vez, por rondas. Toca una portada cuando lo termines.</p>
       <div class="chips">
         <span class="chip"><b id="count">0</b> de <b id="total">0</b> libros</span>
-        <span class="chip"><b id="closed">0</b> de <b id="closedTotal">0</b> trilogías cerradas</span>
+        <span class="chip"><b id="closed">0</b> de <b id="closedTotal">0</b> sagas cerradas</span>
       </div>
     </div>
     <div class="ring" aria-hidden="true">
@@ -109,26 +131,17 @@ footer{color:var(--muted);font-size:.78rem;text-align:center}
   </header>
 
   <section class="section">
-    <div class="section-head"><span class="eyebrow">Ahora</span><h2>Terminar primero</h2></div>
-    <div class="route" id="now"></div>
-  </section>
-
-  <section class="section">
-    <div class="section-head"><span class="eyebrow">La ruta</span><h2>En este orden</h2><p>Cada parada es una saga. Termina la parada antes de pasar a la siguiente.</p></div>
+    <div class="section-head"><span class="eyebrow">La ruta</span><h2>Por rondas</h2><p>En cada ronda lees un físico y un digital al mismo tiempo, uno denso y uno más ágil. Cuando terminas los dos, pasas a la siguiente.</p></div>
     <div class="route" id="route"></div>
-  </section>
-
-  <section class="section">
-    <div class="section-head"><span class="eyebrow">Respiros</span><h2>Entre bloques largos</h2><p>Cortos o autoconclusivos, para descansar sin abrir otra saga.</p></div>
-    <div class="route" id="breaks"></div>
   </section>
 
   <section class="section">
     <div class="section-head"><span class="eyebrow">Reglas</span><h2>Para no desviarme</h2></div>
     <div class="rules">
-      <div class="rule"><b>Máximo dos a la vez</b><p>Uno físico y uno digital, o uno largo y uno ligero.</p></div>
+      <div class="rule"><b>Un físico y un digital</b><p>Nunca dos del mismo formato. Cuando se acaben los físicos, uno denso y uno corto.</p></div>
       <div class="rule"><b>Nada nuevo hasta terminar</b><p>Lo que me tiente va a la lista de abajo, no a la mesa de noche.</p></div>
       <div class="rule"><b>La continuación primero</b><p>Al terminar un libro, sigo con el siguiente de su saga.</p></div>
+      <div class="rule"><b>Segundas oportunidades con límite</b><p>Seis de cuervos hasta la pág. 100; La sombra del zorro, 80 páginas. Si no engancha, se suelta sin culpa.</p></div>
     </div>
   </section>
 
@@ -143,40 +156,42 @@ footer{color:var(--muted);font-size:.78rem;text-align:center}
 </div>
 
 <script>
-// Cada libro: id, título, autor, título original (para buscar portada), colores del respaldo.
 const B=(id,t,a,en,c1,c2,extra={})=>({id,t,a,en,c1,c2,...extra});
-const NOW=[
-  {saga:"Lecturas en curso",books:[
-    B("alchemised","Alchemised","SenLinYu","Alchemised","#4b2b3a","#1e1420",{tag:"started",meta:"Vas por la pág. 600"}),
-    B("republica","La república del dragón","R. F. Kuang","The Dragon Republic","#7a2a1e","#2b0f0c",{tag:"started",meta:"La guerra de la amapola · 2"})
-  ]}
-];
-const ROUTE=[
-  {saga:"Escolomancia",note:"Te falta el último",books:[B("enclaves","Los enclaves dorados","Naomi Novik","The Golden Enclaves","#8a6a1f","#2a1f08",{tag:"close",tri:true})]},
-  {saga:"Red Rising",note:"Ya empezaste el segundo",books:[
-    B("hijodorado","Hijo dorado","Pierce Brown","Golden Son","#9b7a1e","#2e2208",{tag:"started"}),
-    B("estrella","Estrella de la mañana","Pierce Brown","Morning Star","#3b5f8f","#101c2e",{tag:"close",tri:true})]},
-  {saga:"Nuncanoche",note:"Te falta el último",books:[B("albaoscura","Albaoscura","Jay Kristoff","Darkdawn","#3a2f5c","#120d22",{tag:"close",tri:true})]},
-  {saga:"La guerra de la amapola",note:"Después del que estás leyendo",books:[B("diosllamas","El dios en llamas","R. F. Kuang","The Burning God","#a33a1e","#330f08",{tag:"close",tri:true})]},
-  {saga:"Trilogía del Vatídico",note:"Robin Hobb",books:[
-    B("asesinoreal","Asesino real","Robin Hobb","Royal Assassin","#2f5a4a","#0e1f19"),
-    B("busqueda","La búsqueda del asesino","Robin Hobb","Assassin's Quest","#24485a","#0b1820",{tag:"close",tri:true})]},
-  {saga:"El ángel de la noche",note:"Brent Weeks",books:[
-    B("alfilo","Al filo de las sombras","Brent Weeks","Shadow's Edge","#3a3a44","#111116"),
-    B("masalla","Más allá de las sombras","Brent Weeks","Beyond the Shadows","#5a2630","#1c0a0e",{tag:"close",tri:true})]},
-  {saga:"La jerarquía",note:"Ya empezado",books:[B("voluntad","La voluntad de muchos","James Islington","The Will of the Many","#7a5a2a","#24190a",{tag:"started"})]},
-  {saga:"Hermanos de sangre",note:"John Gwynne",books:[
-    B("hambre","El hambre de los dioses","John Gwynne","The Hunger of the Gods","#4a5a6a","#141b22"),
-    B("furia","La furia de los dioses","John Gwynne","The Fury of the Gods","#6a3a2a","#1e0f0a",{tag:"close",tri:true})]}
-];
-const BREAKS=[
-  {saga:"Cuando necesite un respiro",books:[
-    B("vals","El vals de la bruja","Belén Martínez","","#3d2a55","#140c20"),
-    B("rebelion","Rebelión en la granja","George Orwell","Animal Farm","#7a3a1a","#24100a"),
-    B("fahrenheit","Fahrenheit 451","Ray Bradbury","Fahrenheit 451","#b5531c","#3a1406")]}
+const FIS={k:"fis",label:"Físico"}, DIG={k:"dig",label:"Digital"}, DENSO={k:"dig",label:"Digital · denso"}, CORTO={k:"short",label:"Digital · corto"};
+const ROUNDS=[
+  {n:"▶",now:true,title:"Ahora",why:"Los dos son físicos: excepción porque ya los empezaste. Termina Alchemised primero.",
+   lanes:[[FIS,[B("alchemised","Alchemised","SenLinYu","Alchemised","#4b2b3a","#1e1420",{tag:"started",meta:"Vas por la pág. 600"}),
+               B("republica","La república del dragón","R. F. Kuang","The Dragon Republic","#7a2a1e","#2b0f0c",{tag:"started",meta:"La guerra de la amapola · 2"})]],
+          [DIG,[],"Nada digital hasta terminar Alchemised."]]},
+  {n:1,title:"Cierra la Amapola y Escolomancia",why:"El dios en llamas es largo y duro; Los enclaves dorados se lee rápido y te da la primera saga cerrada.",
+   lanes:[[FIS,[B("diosllamas","El dios en llamas","R. F. Kuang","The Burning God","#a33a1e","#330f08",{tag:"close",tri:true,meta:"La guerra de la amapola · 3"})]],
+          [DIG,[B("enclaves","Los enclaves dorados","Naomi Novik","The Golden Enclaves","#8a6a1f","#2a1f08",{tag:"close",tri:true,meta:"Escolomancia · 3"})]]]},
+  {n:2,title:"Respiro en papel, intensidad en pantalla",why:"Una relectura de thriller para descansar de la fantasía mientras retomas Red Rising.",
+   lanes:[[FIS,[B("lunafria","Luna fría","Jeffery Deaver","The Cold Moon","#22344d","#0a1220",{meta:"Relectura · Lincoln Rhyme"})]],
+          [DIG,[B("hijodorado","Hijo dorado","Pierce Brown","Golden Son","#9b7a1e","#2e2208",{tag:"started",meta:"Red Rising · 2"})]]]},
+  {n:3,title:"Segunda oportunidad y cierre de Red Rising",why:"Seis de cuervos arranca lento; aguanta hasta la pág. 100, cuando se arma el golpe.",
+   lanes:[[FIS,[B("seiscuervos","Seis de cuervos","Leigh Bardugo","Six of Crows","#2a2a2a","#0c0c0c",{tag:"retry",meta:"Bilogía · 1"})]],
+          [DIG,[B("estrella","Estrella de la mañana","Pierce Brown","Morning Star","#3b5f8f","#101c2e",{tag:"close",tri:true,meta:"Red Rising · 3"})]]]},
+  {n:4,title:"Último físico",why:"Si Seis de cuervos te enganchó, consigue Reino de ladrones en digital. Si no, salta directo a Albaoscura.",
+   lanes:[[FIS,[B("zorro","La sombra del zorro","Julie Kagawa","Shadow of the Fox","#7a1e2a","#24080c",{tag:"retry",meta:"Tercer intento · 80 páginas"})]],
+          [DIG,[B("reino","Reino de ladrones","Leigh Bardugo","Crooked Kingdom","#5a4a2a","#1a1408",{tag:"close",tri:true,later:true,meta:"Seis de cuervos · 2"})]]]},
+  {divider:"Desde aquí todo es digital: un libro denso y uno corto a la vez"},
+  {n:5,title:"Cierra Nuncanoche",lanes:[[DENSO,[B("albaoscura","Albaoscura","Jay Kristoff","Darkdawn","#3a2f5c","#120d22",{tag:"close",tri:true,meta:"Nuncanoche · 3"})]],
+          [CORTO,[B("rebelion","Rebelión en la granja","George Orwell","Animal Farm","#7a3a1a","#24100a",{meta:"Clásico"})]]]},
+  {n:6,title:"Vuelve Robin Hobb",lanes:[[DENSO,[B("asesinoreal","Asesino real","Robin Hobb","Royal Assassin","#2f5a4a","#0e1f19",{meta:"Vatídico · 2"})]],
+          [CORTO,[B("fahrenheit","Fahrenheit 451","Ray Bradbury","Fahrenheit 451","#b5531c","#3a1406",{meta:"Clásico"})]]]},
+  {n:7,title:"Cierra el Vatídico",lanes:[[DENSO,[B("busqueda","La búsqueda del asesino","Robin Hobb","Assassin's Quest","#24485a","#0b1820",{tag:"close",tri:true,meta:"Vatídico · 3"})]],
+          [CORTO,[B("vals","El vals de la bruja","Belén Martínez","","#3d2a55","#140c20",{meta:"Autoconclusivo"})]]]},
+  {n:8,title:"El ángel de la noche, seguidos",why:"Uno tras otro: son rápidos y se leen como una sola historia.",
+   lanes:[[DIG,[B("alfilo","Al filo de las sombras","Brent Weeks","Shadow's Edge","#3a3a44","#111116",{meta:"Libro 2"}),
+               B("masalla","Más allá de las sombras","Brent Weeks","Beyond the Shadows","#5a2630","#1c0a0e",{tag:"close",tri:true,meta:"Libro 3"})]]]},
+  {n:9,title:"Retoma La jerarquía",lanes:[[DIG,[B("voluntad","La voluntad de muchos","James Islington","The Will of the Many","#7a5a2a","#24190a",{tag:"started",meta:"Libro 1"})]]]},
+  {n:10,title:"Cierre final: Hermanos de sangre",why:"Uno tras otro.",
+   lanes:[[DIG,[B("hambre","El hambre de los dioses","John Gwynne","The Hunger of the Gods","#4a5a6a","#141b22",{meta:"Libro 2"}),
+               B("furia","La furia de los dioses","John Gwynne","The Fury of the Gods","#6a3a2a","#1e0f0a",{tag:"close",tri:true,meta:"Libro 3"})]]]}
 ];
 const DEFAULT_LATER=["Hijos de sangre y hueso","Soul Land (novela ligera), solo para ratos muertos"];
-const TAG={close:"Cierra trilogía",started:"Empezado"};
+const TAG={close:"Cierra saga",started:"Empezado",retry:"Nuevo intento"};
 const KEY="ruta-lectura-v1";
 
 let state={done:[],later:DEFAULT_LATER.slice()};
@@ -184,12 +199,11 @@ try{const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s&&Array.isArray(s
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){} updateStats()};
 const $=id=>document.getElementById(id);
 
-// Portadas: busca en Open Library y guarda el resultado en caché local.
-const COVER_KEY="ruta-portadas-v1";
+const COVER_KEY="ruta-portadas-v2";
 let coverCache={}; try{coverCache=JSON.parse(localStorage.getItem(COVER_KEY)||"{}")}catch(e){}
 async function findCover(b){
   if(b.id in coverCache) return coverCache[b.id];
-  const tries=[[b.t,b.a],[b.en,b.a]].filter(x=>x[0]);
+  const tries=[[b.en,b.a],[b.t,b.a]].filter(x=>x[0]);
   for(const [title,author] of tries){
     try{
       const r=await fetch("https://openlibrary.org/search.json?limit=5&fields=cover_i&title="+encodeURIComponent(title)+"&author="+encodeURIComponent(author));
@@ -200,27 +214,39 @@ async function findCover(b){
   }
   return null;
 }
-
 function bookEl(b){
   const el=document.createElement("button"); el.type="button"; el.className="book"+(state.done.includes(b.id)?" done":"");
   el.setAttribute("aria-pressed",state.done.includes(b.id)); el.setAttribute("aria-label",b.t+", "+b.a);
   el.innerHTML=`<div class="cover" style="--c1:${b.c1};--c2:${b.c2}"><div class="ph"><span></span><small></small></div><img alt=""><span class="stamp">LEÍDO</span></div><span class="btitle"></span><span class="bmeta"></span>`;
   el.querySelector(".ph span").textContent=b.t; el.querySelector(".ph small").textContent=b.a;
   el.querySelector(".btitle").textContent=b.t; el.querySelector(".bmeta").textContent=b.meta||b.a;
-  if(b.tag){const t=document.createElement("span"); t.className="tag "+b.tag; t.textContent=TAG[b.tag]; el.append(t)}
+  const tags=[]; if(b.tag) tags.push([b.tag,TAG[b.tag]]); if(b.later) tags.push(["later","Por conseguir"]);
+  tags.forEach(([k,txt])=>{const t=document.createElement("span"); t.className="tag "+k; t.textContent=txt; el.append(t)});
   const img=el.querySelector("img");
   img.onload=()=>{if(img.naturalWidth>2) img.classList.add("ok")};
   findCover(b).then(id=>{if(id) img.src="https://covers.openlibrary.org/b/id/"+id+"-M.jpg"});
   el.addEventListener("click",()=>{const on=!state.done.includes(b.id); state.done=state.done.filter(x=>x!==b.id); if(on) state.done.push(b.id); el.classList.toggle("done",on); el.setAttribute("aria-pressed",on); save()});
   return el;
 }
-function stopEl(s,n,isNow){
-  const d=document.createElement("article"); d.className="stop"+(isNow?" now":"");
-  d.innerHTML=`<div class="step"></div><div class="stop-body"><div class="stop-title"><h3></h3><span></span></div><div class="books"></div></div>`;
-  d.querySelector(".step").textContent=n; d.querySelector("h3").textContent=s.saga; d.querySelector(".stop-title span").textContent=s.note||"";
-  d.querySelector(".books").append(...s.books.map(bookEl)); return d;
+function roundEl(r){
+  if(r.divider){const d=document.createElement("div"); d.className="divider"; d.textContent=r.divider; return d}
+  const d=document.createElement("article"); d.className="round"+(r.now?" now":"");
+  const h=document.createElement("div"); h.className="round-head";
+  h.innerHTML=`<div class="step"></div><div><h3></h3>${r.why?"<p></p>":""}</div>`;
+  h.querySelector(".step").textContent=r.n; h.querySelector("h3").textContent=r.title; if(r.why) h.querySelector("p").textContent=r.why;
+  const lanes=document.createElement("div"); lanes.className="lanes"+(r.lanes.length===1?" single":"");
+  r.lanes.forEach(([kind,books,empty])=>{
+    const l=document.createElement("div"); l.className="lane";
+    const lab=document.createElement("div"); lab.className="lane-label "+kind.k; lab.innerHTML="<i></i><span></span>"; lab.querySelector("span").textContent=kind.label;
+    if(books.length>1){const sm=document.createElement("small"); sm.textContent="· uno tras otro"; lab.append(sm)}
+    l.append(lab);
+    if(books.length){const bs=document.createElement("div"); bs.className="books"; bs.append(...books.map(bookEl)); l.append(bs)}
+    else {const p=document.createElement("p"); p.className="lane-empty"; p.textContent=empty||""; l.append(p)}
+    lanes.append(l);
+  });
+  d.append(h,lanes); return d;
 }
-const ALL=[...NOW,...ROUTE,...BREAKS].flatMap(s=>s.books);
+const ALL=ROUNDS.filter(r=>r.lanes).flatMap(r=>r.lanes.flatMap(l=>l[1]));
 const TRI=ALL.filter(b=>b.tri);
 function updateStats(){
   const d=ALL.filter(b=>state.done.includes(b.id)).length, pct=Math.round(d/ALL.length*100);
@@ -231,9 +257,7 @@ function updateStats(){
     const x=document.createElement("button"); x.className="x"; x.type="button"; x.textContent="×"; x.setAttribute("aria-label","Quitar "+t);
     x.onclick=()=>{state.later.splice(i,1); save()}; li.append(s,x); return li}));
 }
-$("now").append(...NOW.map(s=>stopEl(s,"▶",true)));
-$("route").append(...ROUTE.map((s,i)=>stopEl(s,i+1)));
-$("breaks").append(...BREAKS.map(s=>stopEl(s,"~")));
+$("route").append(...ROUNDS.map(roundEl));
 $("laterForm").addEventListener("submit",e=>{e.preventDefault(); const v=$("laterInput").value.trim(); if(!v) return; state.later.push(v); $("laterInput").value=""; save()});
 updateStats();
 </script>
